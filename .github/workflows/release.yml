@@ -23,6 +23,6 @@ jobs:
           # Send necessary info
           client-payload: |
             {
-              "submodule_path": "multi-agents-api",
+              "submodule_path": "api",
               "tag": "${{ steps.get_tag.outputs.tag_name }}"
             }
