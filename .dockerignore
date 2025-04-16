@@ -1,0 +1,12 @@
+.DS_Store
+__pycache__
+*.pyc
+.venv
+.env
+.pytest_cache
+.ruff_cache
+.git
+.gitignore
+Dockerfile
+.dockerignore
+.azure # Prevent copying Azure deployment state into image
