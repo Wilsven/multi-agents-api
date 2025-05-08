@@ -11,7 +11,7 @@ for i in "${!file_paths[@]}"; do
     file_path="${file_paths[$i]}"
     remote="${remotes[$i]}"
     echo "💪 Pulling $file_path from remote $remote..."
-    dvc pull "$file_path" --remote "$remote"
+    dvc pull "$file_path" --remote "$remote" --force
 done
 
 echo "✅ All files pulled successfully."

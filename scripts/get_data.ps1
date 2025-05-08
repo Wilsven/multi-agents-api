@@ -9,7 +9,7 @@ for ($i = 0; $i -lt $filePaths.Length; $i++) {
     $filePath = $filePaths[$i]
     $remote = $remotes[$i]
     Write-Host "Pulling $filePath from remote $remote..."
-    & dvc pull $filePath --remote $remote
+    & dvc pull $filePath --remote $remote --force
 }
 
 Write-Host "✅ All files pulled successfully."

@@ -27,7 +27,7 @@ if ! command -v uv >/dev/null 2>&1; then
     source "$HOME/.cargo/env"
 fi
 
-echo -e "🛠️ Creating virtual environment..."
+echo -e "💪 Creating virtual environment..."
 if ! uv venv; then
     echo -e "❌ Failed to create virtual environment."
     return 1
