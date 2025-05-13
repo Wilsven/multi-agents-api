@@ -1,0 +1,26 @@
+services:
+  api:
+    container_name: multi_agents_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    # volumes:
+    #   - .:/app
+    #   - ./data:/app/data
+    env_file:
+      - .azure/agents/.env
+    environment:
+      ENV_TYPE: development
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+networks:
+  default:
+    name: multi_agents_network
