@@ -18,7 +18,7 @@ from app.models.database import Base
 
 # Define ORM models (existing tables)
 class User(AsyncAttrs, Base):
-    __tablename__ = "Users"
+    __tablename__ = "users"
 
     id = Column(
         "id",
@@ -27,9 +27,9 @@ class User(AsyncAttrs, Base):
         nullable=False,
         default=lambda: str(uuid.uuid4()),
     )
-    address_id = Column("address_id", String, ForeignKey("Addresses.id"), nullable=True)
+    address_id = Column("address_id", String, ForeignKey("addresses.id"), nullable=True)
     enrolled_clinic_id = Column(
-        "enrolled_clinic_id", String, ForeignKey("Clinics.id"), nullable=True
+        "enrolled_clinic_id", String, ForeignKey("clinics.id"), nullable=True
     )
     nric = Column("nric", String, unique=True, nullable=False)
     first_name = Column("first_name", String, nullable=False)
@@ -55,7 +55,7 @@ class User(AsyncAttrs, Base):
 
 
 class Clinic(AsyncAttrs, Base):
-    __tablename__ = "Clinics"
+    __tablename__ = "clinics"
 
     id = Column(
         "id",
@@ -65,7 +65,7 @@ class Clinic(AsyncAttrs, Base):
         default=lambda: str(uuid.uuid4()),
     )
     address_id = Column(
-        "address_id", String, ForeignKey("Addresses.id"), nullable=False
+        "address_id", String, ForeignKey("addresses.id"), nullable=False
     )
     name = Column("name", String, nullable=False)
     type = Column("type", String, nullable=False)
@@ -86,7 +86,7 @@ class Clinic(AsyncAttrs, Base):
 
 
 class Address(AsyncAttrs, Base):
-    __tablename__ = "Addresses"
+    __tablename__ = "addresses"
 
     id = Column(
         "id",
@@ -115,7 +115,7 @@ class Address(AsyncAttrs, Base):
 
 
 class Vaccine(AsyncAttrs, Base):
-    __tablename__ = "Vaccines"
+    __tablename__ = "vaccines"
 
     id = Column(
         "id",
@@ -141,7 +141,7 @@ class Vaccine(AsyncAttrs, Base):
 
 
 class VaccineCriteria(AsyncAttrs, Base):
-    __tablename__ = "VaccineCriteria"
+    __tablename__ = "vaccinecriteria"
 
     id = Column(
         "id",
@@ -150,7 +150,7 @@ class VaccineCriteria(AsyncAttrs, Base):
         nullable=False,
         default=lambda: str(uuid.uuid4()),
     )
-    vaccine_id = Column("vaccine_id", String, ForeignKey("Vaccines.id"), nullable=False)
+    vaccine_id = Column("vaccine_id", String, ForeignKey("vaccines.id"), nullable=False)
     age_criteria = Column("age_criteria", String)
     gender_criteria = Column("gender_criteria", String)
     health_condition_criteria = Column("health_condition_criteria", String)
@@ -171,7 +171,7 @@ class VaccineCriteria(AsyncAttrs, Base):
 
 
 class BookingSlot(AsyncAttrs, Base):
-    __tablename__ = "BookingSlots"
+    __tablename__ = "bookingslots"
 
     id = Column(
         "id",
@@ -181,9 +181,9 @@ class BookingSlot(AsyncAttrs, Base):
         default=lambda: str(uuid.uuid4()),
     )
     polyclinic_id = Column(
-        "polyclinic_id", String, ForeignKey("Clinics.id"), nullable=False
+        "polyclinic_id", String, ForeignKey("clinics.id"), nullable=False
     )
-    vaccine_id = Column("vaccine_id", String, ForeignKey("Vaccines.id"), nullable=False)
+    vaccine_id = Column("vaccine_id", String, ForeignKey("vaccines.id"), nullable=False)
     datetime = Column("datetime", DateTime, nullable=False)
     created_at = Column(
         "created_at", DateTime, server_default=func.now(), nullable=False
@@ -202,7 +202,7 @@ class BookingSlot(AsyncAttrs, Base):
 
 
 class VaccineRecord(AsyncAttrs, Base):
-    __tablename__ = "VaccineRecords"
+    __tablename__ = "vaccinerecords"
 
     id = Column(
         "id",
@@ -211,9 +211,9 @@ class VaccineRecord(AsyncAttrs, Base):
         nullable=False,
         default=lambda: str(uuid.uuid4()),
     )
-    user_id = Column("user_id", String, ForeignKey("Users.id"), nullable=False)
+    user_id = Column("user_id", String, ForeignKey("users.id"), nullable=False)
     booking_slot_id = Column(
-        "booking_slot_id", String, ForeignKey("BookingSlots.id"), nullable=False
+        "booking_slot_id", String, ForeignKey("bookingslots.id"), nullable=False
     )
     status = Column("status", String, nullable=False)
     created_at = Column(

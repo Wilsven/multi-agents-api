@@ -51,7 +51,7 @@ async def get_vaccine_recommendations_for_user(
     )
 
     gender_filters = or_(
-        VaccineCriteria.gender_criteria.is_("None"),
+        VaccineCriteria.gender_criteria.is_(None),
         VaccineCriteria.gender_criteria == current_user.gender,
     )
 
