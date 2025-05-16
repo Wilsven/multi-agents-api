@@ -3,7 +3,6 @@ from sqlalchemy.orm import declarative_base
 import os
 # Database connection (existing SQLite file)
 # DATABASE_URL = "sqlite+aiosqlite:///data/vaccination_db.sqlite"
-
 # Azure PostgreSQL connection (updated)
 DATABASE_URL = (
     "postgresql+asyncpg://{username}:{password}@{host}:{port}/{dbname}"

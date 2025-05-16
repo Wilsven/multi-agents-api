@@ -13,7 +13,7 @@ router = APIRouter(prefix="/clinics", tags=["Clinic"])
 
 
 @router.get(
-    "/nearest",
+    "/nearest-by-home",
     status_code=status.HTTP_200_OK,
     response_model=list[ClinicResponse],
 )
@@ -40,6 +40,48 @@ async def get_nearest_clinic(
     haversine_distance = func.pow(
         func.radians(Address.latitude - user_latitude), 2
     ) + func.pow(func.radians(Address.longitude - user_longitude), 2)
+
+    # Query to fetch clinics ordered by distance
+    stmt = (
+        select(Clinic)
+        .join(Clinic.address)
+        .options(selectinload(Clinic.address))
+        .add_columns(haversine_distance.label("distance"))
+        .order_by("distance")
+        .limit(clinic_limit)
+    )
+
+    if clinic_type:
+        stmt = stmt.where(Clinic.type == clinic_type.value)
+
+    result = await db.execute(stmt)
+    polyclinics = result.scalars().all()
+
+    if not polyclinics:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No {clinic_type.value} found.",
+        )
+
+    return polyclinics
+
+
+@router.get(
+    "/nearest-by-location",
+    status_code=status.HTTP_200_OK,
+    response_model=list[ClinicResponse],
+)
+async def get_nearest_clinic_by_location(
+    latitude: float,
+    longitude: float,
+    clinic_limit: int = 3,
+    clinic_type: ClinicType | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    # Calculate the distance using the Haversine formula
+    haversine_distance = func.pow(
+        func.radians(Address.latitude - latitude), 2
+    ) + func.pow(func.radians(Address.longitude - longitude), 2)
 
     # Query to fetch clinics ordered by distance
     stmt = (

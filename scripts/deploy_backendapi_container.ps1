@@ -13,7 +13,7 @@ $infraVars = @(
 )
 
 # Read .env file and set environment variables, collect app vars
-$envFile = "../.azure/agents/.env"
+$envFile = ".azure/agents/.env"
 $envVarsList = @()
 
 if (Test-Path $envFile) {
