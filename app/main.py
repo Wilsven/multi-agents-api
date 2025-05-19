@@ -17,7 +17,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.database.cosmos_client import PyMongoCosmosDBClient
 from app.middleware.audit import audit_middleware
-from app.routers import authentication, booking, clinic, record, user, vaccine
+from app.routers import authentication, booking, clinic, record, user, vaccine, transcription
+from app.services.speech.speech_to_text import SpeechToText
 
 logger = logging.getLogger("uvicorn.error")
 logger.setLevel(logging.INFO)
@@ -117,7 +118,15 @@ def create_app(test: bool = False) -> FastAPI:
                 )
                 logger.info("Audit DB client initialized.")
 
+            logger.info("Initializing Speech-to-Text service...")
+            
+            # initialize Speech-to-Text service
+            stt_service = SpeechToText()
+            await stt_service.initialize()
+            app.state.speech_to_text_service = stt_service
+
             logger.info("Startup complete. Handing over to FastAPI application.")
+
             # Hand over control to FastAPI
             yield
 
@@ -157,6 +166,7 @@ def create_app(test: bool = False) -> FastAPI:
 
     # Enable CORS
     origins = [
+        "http://localhost:3000",
         "http://localhost:4200",
         "http://localhost:8000",
         "http://localhost:8001",
@@ -176,6 +186,7 @@ def create_app(test: bool = False) -> FastAPI:
     app.include_router(record.router)
     app.include_router(user.router)
     app.include_router(vaccine.router)
+    app.include_router(transcription.router)
 
     @app.get("/")
     async def root():
