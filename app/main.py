@@ -215,13 +215,14 @@ def create_app(test: bool = False) -> FastAPI:
         app = FastAPI()
 
     # Enable CORS
-    origins = [
-        "http://localhost:3000",
-        "http://localhost:4200",
-        "http://localhost:8000",
-        "http://localhost:8001",
-    ]
+    # origins = [
+    #     "http://localhost:3000",
+    #     "http://localhost:4200",
+    #     "http://localhost:8000",
+    #     "http://localhost:8001",
+    # ]
 
+    origins = ["*"]
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
