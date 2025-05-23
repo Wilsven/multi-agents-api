@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 
 from app.auth.oauth2 import get_current_user
 from app.models.database import get_db
-from app.models.models import Address, Clinic, User
+from app.models.models import Address, User
 from app.schemas.user import UserResponse, UserUpdate, UserUpdateResponse
 
 router = APIRouter(prefix="/users", tags=["User"])
@@ -30,10 +30,8 @@ async def get_user(
     stmt = (
         select(User)
         .outerjoin(Address, onclause=Address.id == User.address_id)
-        .outerjoin(Clinic, onclause=Clinic.id == User.enrolled_clinic_id)
         .options(
             selectinload(User.address),
-            selectinload(User.enrolled_clinic).selectinload(Clinic.address),
         )
         .filter(User.id == str(current_user.id))
     )
@@ -77,25 +75,18 @@ async def update_user(
     result = await db.execute(stmt)
     address = result.scalars().first()
 
-    # Step 2: Get the address of the enrolled clinic, if available
-    stmt = (
-        select(Clinic)
-        .join(Address)
-        .filter(Address.postal_code == user_update.enrolled_clinic_postal_code)
-    )
-
-    result = await db.execute(stmt)
-    clinic = result.scalars().first()
-
     address_id = address.id if address else None
-    clinic_id = clinic.id if clinic else None
 
     data = user_update.model_dump()
     for key, value in data.items():
         if key == "postal_code":
             setattr(user, "address_id", address_id)
-        elif key == "enrolled_clinic_postal_code":
-            setattr(user, "enrolled_clinic_id", clinic_id)
+        elif key == "health_conditions":
+            # Convert the list of HealthCondition enums to a comma-separated string
+            if value:
+                setattr(user, key, ",".join([condition.value for condition in value]))
+            else:
+                setattr(user, key, None)  # Handle empty list case
         elif hasattr(user, key):
             setattr(user, key, value)
 

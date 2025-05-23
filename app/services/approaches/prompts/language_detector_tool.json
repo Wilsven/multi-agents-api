@@ -1,0 +1,21 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "detect_language",
+      "description": "Detect the language of the user query.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": ["english", "chinese", "tamil", "malay", "unknown"],
+            "description": "Detected language of the user query."
+          }
+        },
+        "required": ["language"],
+        "additionalProperties": false
+      }
+    }
+  }
+]

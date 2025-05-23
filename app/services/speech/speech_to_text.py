@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 
 from app.schemas.voice import TranscriptionResponse
 
-# load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../../../../../.env"))
 
 
 class SpeechToText:
@@ -89,18 +88,6 @@ class SpeechToText:
                 },
                 528,
             )
-        elif result.reason == speechsdk.ResultReason.Canceled:
-            # Get detailed cancellation information
-            cancellation = speechsdk.CancellationDetails(result)
-    
-            error_details = {
-                "reason": cancellation.reason.name,  # e.g., "Error"
-                "error_code": cancellation.code.name if cancellation.code else None,  # e.g., "ServiceTimeout"
-                "technical_details": cancellation.error_details  # Raw error message
-            }         
-            return ({
-                "error": f"Speech recognition canceled: {error_details}",
-            }, 500)
         else:
             return (
                 {"error": f"Speech recognition error: {result.reason}"},

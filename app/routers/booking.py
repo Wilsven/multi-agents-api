@@ -11,7 +11,14 @@ from sqlalchemy.orm import selectinload
 
 from app.auth.oauth2 import get_current_user
 from app.models.database import get_db
-from app.models.models import Address, BookingSlot, Clinic, User, Vaccine, VaccineRecord
+from app.models.models import (
+    Address,
+    BookingSlot,
+    Clinic,
+    User,
+    Vaccine,
+    VaccineRecord,
+)
 from app.schemas.booking import (
     AvailableSlotResponse,
     BookingSlotResponse,

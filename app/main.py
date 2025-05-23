@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
+import pandas as pd
 
 import uvicorn
 from azure.core.exceptions import ResourceNotFoundError
@@ -9,16 +10,30 @@ from azure.identity.aio import (
     AzureDeveloperCliCredential,
     ChainedTokenCredential,
     DefaultAzureCredential,
+    get_bearer_token_provider,
 )
 from azure.keyvault.secrets.aio import SecretClient as AsyncSecretClient
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
+from openai import AsyncAzureOpenAI
 
 from app.database.cosmos_client import PyMongoCosmosDBClient
 from app.middleware.audit import audit_middleware
-from app.routers import authentication, booking, clinic, record, user, vaccine, transcription
+from app.routers import (
+    authentication,
+    booking,
+    clinic,
+    record,
+    transcription,
+    translate,
+    user,
+    vaccine,
+)
 from app.services.speech.speech_to_text import SpeechToText
+
+from app.services.approaches.promptmanager import PromptyManager
+from app.services.translate.language_openai import LanguageOpenAI
 
 logger = logging.getLogger("uvicorn.error")
 logger.setLevel(logging.INFO)
@@ -127,6 +142,41 @@ def create_app(test: bool = False) -> FastAPI:
 
             logger.info("Startup complete. Handing over to FastAPI application.")
 
+            # initialize Translation service
+            app.state.official_terms = pd.read_parquet(
+                "./app/assets/official_terms.parquet"
+            )
+            prompt_manager = PromptyManager()
+
+            token_provider = get_bearer_token_provider(
+                azure_credential, "https://cognitiveservices.azure.com/.default"
+            )
+            OPENAI_CHATGPT_MODEL = os.getenv("AZURE_OPENAI_CHATGPT_MODEL")
+            AZURE_OPENAI_SERVICE = os.getenv("AZURE_OPENAI_SERVICE")
+            AZURE_OPENAI_CHATGPT_DEPLOYMENT = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT")
+
+            credential = DefaultAzureCredential()
+            token_provider = get_bearer_token_provider(
+                credential, "https://cognitiveservices.azure.com/.default"
+            )
+            client = AsyncAzureOpenAI(
+                api_version="2024-10-21",
+                azure_endpoint=f"https://{AZURE_OPENAI_SERVICE}.openai.azure.com",
+                azure_ad_token_provider=token_provider,
+                azure_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
+            )
+
+            OPENAI_CHATGPT_MODEL = os.getenv("AZURE_OPENAI_CHATGPT_MODEL")
+            AZURE_OPENAI_CHATGPT_DEPLOYMENT = os.getenv("AZURE_OPENAI_CHATGPT_DEPLOYMENT")
+            app.state.translate_service = LanguageOpenAI(
+                openai_client=client,
+                chatgpt_model=OPENAI_CHATGPT_MODEL,
+                chatgpt_deployment=AZURE_OPENAI_CHATGPT_DEPLOYMENT,
+                prompt_manager=prompt_manager,
+                official_terms=app.state.official_terms,
+            )
+
+
             # Hand over control to FastAPI
             yield
 
@@ -187,6 +237,7 @@ def create_app(test: bool = False) -> FastAPI:
     app.include_router(user.router)
     app.include_router(vaccine.router)
     app.include_router(transcription.router)
+    app.include_router(translate.router)
 
     @app.get("/")
     async def root():

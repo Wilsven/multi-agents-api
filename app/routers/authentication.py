@@ -56,6 +56,15 @@ async def signup(
     user.password = hashed_password
 
     data = user.model_dump()
+
+    # Convert list of HealthCondition enums to comma-separated string for database insertion
+    if user.health_conditions:
+        data["health_conditions"] = ",".join(
+            [condition.value for condition in user.health_conditions]
+        )
+    else:
+        data["health_conditions"] = None  # Handle empty list case
+
     if address:
         data["address"] = address
     data.pop("postal_code", None)
