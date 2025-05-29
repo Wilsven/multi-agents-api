@@ -5,6 +5,7 @@ FROM python:3.12.9-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_PROJECT_ENVIRONMENT="/usr/local/" \
+    UV_PYTHON_VERSION="3.12" \
     # Ensure scripts know where the app root is
     PYTHONPATH="/app"
 
