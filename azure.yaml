@@ -2,4 +2,5 @@
 
 name: multi-agents-api
 metadata:
-    template: azd-init@1.14.0
+  template: azd-init@1.14.0
+# test
